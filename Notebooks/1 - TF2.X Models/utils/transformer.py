@@ -114,12 +114,13 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         self.d_ff = d_ff
         self.dropout = dropout
         self.activation = activation
+	self.keras = keras
 
         assert self.d_model % self.num_heads == 0, "d_model must be divisible by num_heads"
 
         self.depth = d_model // self.num_heads
 
-        if not keras:
+        if not self.keras:
             self.mha = MultiHeadAttention(self.d_model, self.num_heads, self.depth)
         else:
             self.mha = tf.keras.layers.MultiHeadAttention(num_heads=self.num_heads, 
@@ -135,7 +136,7 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
 
 	
     def call(self, x, training):
-        if not keras:
+        if not self.keras:
             attn_output, _ = self.mha(x, x, x, None)  # (batch_size, input_seq_len, d_model)
         else:
             attn_output = self.mha(x,x) # (batch_size, input_seq_len, d_model)

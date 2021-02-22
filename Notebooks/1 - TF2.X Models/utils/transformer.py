@@ -61,8 +61,8 @@ def point_wise_feed_forward_network(d_model, d_ff, activation):
 
 
 class MultiHeadAttention(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, depth):
-        super(MultiHeadAttention, self).__init__()
+    def __init__(self, d_model, num_heads, depth, **kwargs):
+        super(MultiHeadAttention, self).__init__(**kwargs)
         self.num_heads = num_heads
         self.d_model = d_model
         self.depth = depth
@@ -107,14 +107,14 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
 
 class TransformerEncoderLayer(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, d_ff, dropout, activation, keras=False):
-        super(TransformerEncoderLayer, self).__init__()
+    def __init__(self, d_model, num_heads, d_ff, dropout, activation, keras, **kwargs):
+        super(TransformerEncoderLayer, self).__init__(**kwargs)
         self.d_model = d_model
         self.num_heads = num_heads
         self.d_ff = d_ff
         self.dropout = dropout
         self.activation = activation
-	self.keras = keras
+        self.keras = keras
 
         assert self.d_model % self.num_heads == 0, "d_model must be divisible by num_heads"
 
@@ -151,11 +151,19 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         return out2
 
 class TransformerEncoder(tf.keras.layers.Layer):
-    def __init__(self, encoder_layer, n_layers):
-        super(TransformerEncoder, self).__init__()
+    def __init__(self, d_model, num_heads, d_ff, dropout, activation, keras, n_layers, **kwargs):
+        super(TransformerEncoder, self).__init__(**kwargs)
         self.n_layers = n_layers
-        self.encoder_layers = [copy.deepcopy(encoder_layer) for i in range(n_layers)]
-
+        self.encoder_layers = [TransformerEncoderLayer(d_model, num_heads,
+                                                       d_ff, dropout, activation, keras) for i in range(n_layers)]
+        
+    def get_config(self):
+        config = {
+            'n_layers': self.n_layers
+        }
+        
+        base_config = super(TransformerEncoder, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
     def call(self, x):
         for i in range(self.n_layers):
@@ -165,9 +173,17 @@ class TransformerEncoder(tf.keras.layers.Layer):
 
     
 class Patches(tf.keras.layers.Layer):
-    def __init__(self, patch_size):
-        super(Patches, self).__init__()
+    def __init__(self, patch_size, **kwargs):
+        super(Patches, self).__init__(**kwargs)
         self.patch_size = patch_size
+
+    def get_config(self):
+        config = {
+            'patch_size': self.patch_size
+        }
+        
+        base_config = super(Patches, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
     def call(self, images):
         batch_size = tf.shape(images)[0]
@@ -194,6 +210,17 @@ class PatchClassEmbedding(tf.keras.layers.Layer):
         self.position_embedding = tf.keras.layers.Embedding(
             input_dim=(self.n_tot_patches), output_dim=self.d_model
         )
+        
+    def get_config(self):
+        config = {
+            'd_model': self.d_model,
+            'n_tot_patches': self.n_tot_patches,
+            'kernel_initializer': self.kernel_initializer
+        }
+        
+        base_config = super(PatchClassEmbedding, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+    
     def call(self, inputs):
         positions = tf.range(start=0, limit=self.n_tot_patches, delta=1)
         x =  tf.repeat(self.class_embed, tf.shape(inputs)[0], axis=0)

@@ -107,24 +107,19 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
 
 class TransformerEncoderLayer(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, d_ff, dropout, activation, keras, **kwargs):
+    def __init__(self, d_model, num_heads, d_ff, dropout, activation, **kwargs):
         super(TransformerEncoderLayer, self).__init__(**kwargs)
         self.d_model = d_model
         self.num_heads = num_heads
         self.d_ff = d_ff
         self.dropout = dropout
         self.activation = activation
-        self.keras = keras
 
         assert self.d_model % self.num_heads == 0, "d_model must be divisible by num_heads"
 
         self.depth = d_model // self.num_heads
 
-        if not self.keras:
-            self.mha = MultiHeadAttention(self.d_model, self.num_heads, self.depth)
-        else:
-            self.mha = tf.keras.layers.MultiHeadAttention(num_heads=self.num_heads, 
-                                                 key_dim=self.d_model, dropout=self.dropout)
+        self.mha = MultiHeadAttention(self.d_model, self.num_heads, self.depth)
             
         self.ffn = point_wise_feed_forward_network(self.d_model, self.d_ff, self.activation)
 
@@ -136,10 +131,7 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
 
 	
     def call(self, x, training):
-        if not self.keras:
-            attn_output, _ = self.mha(x, x, x, None)  # (batch_size, input_seq_len, d_model)
-        else:
-            attn_output = self.mha(x,x) # (batch_size, input_seq_len, d_model)
+        attn_output, _ = self.mha(x, x, x, None)  # (batch_size, input_seq_len, d_model)
             
         attn_output = self.dropout1(attn_output, training=training)
         out1 = self.layernorm1(x + attn_output)  # (batch_size, input_seq_len, d_model)
@@ -151,11 +143,11 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         return out2
 
 class TransformerEncoder(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, d_ff, dropout, activation, keras, n_layers, **kwargs):
+    def __init__(self, d_model, num_heads, d_ff, dropout, activation, n_layers, **kwargs):
         super(TransformerEncoder, self).__init__(**kwargs)
         self.n_layers = n_layers
         self.encoder_layers = [TransformerEncoderLayer(d_model, num_heads,
-                                                       d_ff, dropout, activation, keras) for i in range(n_layers)]
+                                                       d_ff, dropout, activation) for i in range(n_layers)]
         
     def get_config(self):
         config = {

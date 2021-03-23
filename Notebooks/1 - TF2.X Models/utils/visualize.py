@@ -18,6 +18,7 @@ import math
 import matplotlib.pyplot as plt
 from utils.transformer import Patches
 import tensorflow as tf
+from scipy.stats import logistic
 
 def plotImages(images_batch, img_n, classes):
     """
@@ -95,3 +96,26 @@ def explainGradCam(explainer, ax, img, y, model_1, y_pred_1, model_2, y_pred_2, 
                                 color=('blue' if y == y_predm_2 else 'red'))
     ax[0].imshow(grid_1)
     ax[1].imshow(grid_2)
+    
+
+def plot_misclassified_images(X_test, y_pred, y_true, labels):
+    y_pred_arg = (logistic.cdf(y_pred) > 0.5)[...,0].astype(np.float32)
+    errors_indices = np.where(y_pred_arg != y_test)[0]
+    
+    max_c = 5
+    
+    r = np.ceil(errors_indices.size/max_c).astype(np.int32)
+    c = max_c
+        
+    fig, axes = plt.subplots(r, c, figsize=(55,55))
+    axes = axes.flatten()
+    for e_index, ax in zip(errors_indices, axes):
+        ax.imshow(X_test[e_index].astype(np.uint8))
+        ax.grid()
+        class_pred = logistic.cdf(y_pred[int(e_index)])[0]
+        if class_pred < 0.5:
+            class_pred = 1 - class_pred
+        ax.set_title('Class {}: {:.2%}'.format(labels[int(y_pred_arg[int(e_index)])], 
+                                            class_pred), color='red')
+    plt.tight_layout()
+    plt.show()

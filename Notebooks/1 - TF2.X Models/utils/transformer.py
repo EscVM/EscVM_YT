@@ -190,6 +190,7 @@ class Patches(tf.keras.layers.Layer):
         patches = tf.reshape(patches, [batch_size, -1, patch_dims])
         return patches
     
+    
 
 class PatchClassEmbedding(tf.keras.layers.Layer):
     def __init__(self, d_model, n_patches, kernel_initializer='he_normal', **kwargs):

@@ -98,7 +98,7 @@ def explainGradCam(explainer, ax, img, y, model_1, y_pred_1, model_2, y_pred_2, 
     ax[1].imshow(grid_2)
     
 
-def plot_misclassified_images(X_test, y_pred, y_true, labels):
+def plot_misclassified_images(X_test, y_pred, y_test, labels):
     y_pred_arg = (logistic.cdf(y_pred) > 0.5)[...,0].astype(np.float32)
     errors_indices = np.where(y_pred_arg != y_test)[0]
     

@@ -199,7 +199,7 @@ class PatchClassEmbedding(tf.keras.layers.Layer):
         self.n_tot_patches = n_patches + 1
         self.kernel_initializer = kernel_initializer
         self.kernel_initializer = tf.keras.initializers.get(kernel_initializer)
-        self.class_embed = self.add_weight(shape=(1, 1, self.d_model), initializer=self.kernel_initializer) # extra learnable class
+        self.class_embed = self.add_weight(shape=(1, 1, self.d_model), initializer=self.kernel_initializer, name="class_token") # extra learnable class
         self.position_embedding = tf.keras.layers.Embedding(
             input_dim=(self.n_tot_patches), output_dim=self.d_model
         )

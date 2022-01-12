@@ -20,6 +20,7 @@ from utils.transformer import Patches
 import tensorflow as tf
 from scipy.stats import logistic
 
+
 def plotImages(images_batch, img_n, classes):
     """
     Take as input a batch from the generator and plt a number of images equal to img_n
@@ -43,13 +44,13 @@ def plotImages(images_batch, img_n, classes):
     plt.tight_layout()
     plt.show()
 
-def plotHistory(history):
+def plotHistory(history, set_y_min=0, set_y_max=1.5):
     """
     Plot the loss and accuracy curves for training and validation 
     """
     pd.DataFrame(history.history).plot(figsize=(8, 5))
     plt.grid(True)
-    plt.gca().set_ylim(0, 1.5)
+    plt.gca().set_ylim(set_y_min, set_y_max)
     plt.show()
     
 def plotPatches(x, n_images, patch_size):

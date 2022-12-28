@@ -16,19 +16,20 @@
 import numpy as np
 import tensorflow as tf
 
+
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     def __init__(self, d_model, warmup_steps=20000.0):
         super(CustomSchedule, self).__init__()
 
         self.d_model = tf.cast(d_model, dtype='float32')
         self.warmup_steps = warmup_steps
-        
+
     def get_config(self):
         config = {
             'd_model': self.d_model,
             'warmup_steps': self.warmup_steps
         }
-        
+
         return config
 
     def __call__(self, step):
@@ -38,14 +39,16 @@ class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
 
         return tf.math.rsqrt(self.d_model) * tf.math.minimum(arg1, arg2)
 
+
 def get_angles(pos, i, d_model):
     angle_rates = 1 / np.power(10000, (2 * (i//2)) / np.float32(d_model))
     return pos * angle_rates
 
+
 def positional_encoding(position, d_model):
     angle_rads = get_angles(np.arange(position)[:, np.newaxis],
-                          np.arange(d_model)[np.newaxis, :],
-                          d_model)
+                            np.arange(d_model)[np.newaxis, :],
+                            d_model)
 
     # apply sin to even indices in the array; 2i
     angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
@@ -55,4 +58,4 @@ def positional_encoding(position, d_model):
 
     pos_encoding = angle_rads[np.newaxis, ...]
 
-    return tf.cast(pos_encoding, dtype=tf.float32) 
+    return tf.cast(pos_encoding, dtype=tf.float32)

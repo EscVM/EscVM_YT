@@ -21,8 +21,8 @@ def base_loss(X_pos: torch.Tensor, X_neg: torch.Tensor, th: float) -> torch.Tens
     """Base loss described in the paper. Log(1+exp(x)) is added to help differentiation.
 
     Args:
-        X_pos (torch.Tensor): batch of positive examples
-        X_neg (torch.Tensor): batch of negative examples
+        X_pos (torch.Tensor): batch of positive model predictions
+        X_neg (torch.Tensor): batch of negative model predictions
         th (float): loss function threshold
 
     Returns:

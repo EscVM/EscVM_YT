@@ -23,7 +23,7 @@ class FFLinear(Linear):
     """
 
     def __init__(self, in_features: int, out_features: int, activation: torch.nn,
-                 optimizer: torch.optim, threshold: float, loss_fn: Callable,
+                 optimizer: torch.optim, layer_optim_learning_rate: float, threshold: float, loss_fn: Callable,
                  bias: bool = True):
         """Initialize layer
 
@@ -32,6 +32,7 @@ class FFLinear(Linear):
             out_features (int): output features
             activation (torch.nn): layer activation
             optimizer (torch.optim): layer optimizer
+            layer_optim_learning_rate (float): learning rate
             threshold (float): loss function threshold. TODO: Future implementaton should not have it here. Create class loss
             loss_fn (Callable): layer level loss function
             bias (bool, optional): if biase. Defaults to True.
@@ -39,7 +40,7 @@ class FFLinear(Linear):
         super(FFLinear, self).__init__(in_features, out_features, bias)
 
         self.activation = activation
-        self.optimizer = optimizer(self.parameters(), lr=0.03)
+        self.optimizer = optimizer(self.parameters(), lr=layer_optim_learning_rate)
         self.threshold = threshold
         self.loss_fn = loss_fn
 

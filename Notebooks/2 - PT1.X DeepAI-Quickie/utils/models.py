@@ -29,10 +29,6 @@ class FFSequentialModel(ABC):
     """
 
     def __init__(self):
-        self.activation = None  # layers activation
-        self.optimizer = None  # optimizer at layer level
-        self.threshold = None  # loss function threshold
-
         self.layers = []  # store layers
 
     def predict_accomulate_goodness(self, X: torch.Tensor, pos_gen_fn: Callable, n_class: int = None) -> torch.Tensor:
@@ -106,32 +102,41 @@ class FFMultiLayerPerceptron(Module, FFSequentialModel):
     """
 
     def __init__(self, hidden_dimensions: List, activation: torch.nn, optimizer: torch.optim,
-                 threshold: float, loss_fn: Callable):
+                 layer_optim_learning_rate: float, threshold: float, loss_fn: Callable):
         """Initialize MLP model
 
         Args:
             hidden_dimensions (List): list with hidden dimensions. First dim is the input
             activation (torch.nn): activation for each layer
             optimizer (torch.optim): layer level optimizer
+            layer_optim_learning_rate (float): learning rate TODO: Future implementaton should not have it here. Create class loss
             threshold (float): loss function threshold
             loss_fn (Callable): layer level loss function
         """
         super(FFMultiLayerPerceptron, self).__init__()
 
-        self.activation = activation
-        self.optimizer = optimizer
-        # loss th. TODO: Future implementaton should not have it here.
-        self.threshold = threshold
-        self.loss_fn = loss_fn  # loss function at layer level
-
         self.layers = torch.nn.ModuleList()
         for i in range(len(hidden_dimensions) - 1):
             self.layers += [FFLinear(hidden_dimensions[i],
                                      hidden_dimensions[i + 1],
-                                     self.activation,
-                                     self.optimizer,
-                                     self.threshold,
-                                     self.loss_fn)]
+                                     activation,
+                                     optimizer,
+                                     layer_optim_learning_rate,
+                                     threshold,
+                                     loss_fn)]
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Model forward function
+
+        Args:
+            x (torch.Tensor): input tensor
+
+        Returns:
+            torch.Tensor: output tensor
+        """
+        for layer in self.layers:
+            x = layer(x)
+        return x
 
 
 class MultiLayerPerceptron(Module):
@@ -153,7 +158,7 @@ class MultiLayerPerceptron(Module):
                                    hidden_dimensions[i + 1])]
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Model forwoard function
+        """Model forward function
 
         Args:
             x (torch.Tensor): input tensor

@@ -2,7 +2,7 @@
 
 ## 1.1 Installation
 
-Installation it's very straightforward and it takes only a couple of minutes.
+Installation it's very straightforward, and it takes only a couple of minutes.
 
 Firstly, you can start cloning the whole repository:
 
@@ -11,7 +11,7 @@ Firstly, you can start cloning the whole repository:
    git clone https://github.com/EscVM/EscVM_YT.git
    ```
 
-Then, requirements installation depend from which set of notebooks you want to play with. However, whichever set you want to use, navigate into its folder and install the requirements libreries with:
+Then, requirements  depend on from which set of notebooks you would like to play with. However, whichever set you want to use, navigate into its folder and install the requirements libraries with:
 
 2. Install the required packages
    ```bash
@@ -38,4 +38,4 @@ Then, requirements installation depend from which set of notebooks you want to p
 
 **2 - PT1.X DeepAI-Quickie**
 - Visualize Vision Transformer attention: [link](https://github.com/EscVM/EscVM_YT/blob/master/Notebooks/2%20-%20PT1.X%20DeepAI-Quickie/pt_1_vit_attention.ipynb)
-- The Forword-Forward Algorithm: [link](https://github.com/EscVM/EscVM_YT/blob/master/Notebooks/2%20-%20PT1.X%20DeepAI-Quickie/pt_2_forward_forward_alg.ipynb)
+- The Forword-Forward Algorithm: [link](https://github.com/EscVM/EscVM_YT/blob/master/Notebooks/2%20-%20PT1.X%20DeepAI-Quickie/pt_1_forward_forward_alg.ipynb)

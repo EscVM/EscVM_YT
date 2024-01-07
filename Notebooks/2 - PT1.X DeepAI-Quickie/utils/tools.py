@@ -31,7 +31,7 @@ def base_loss(X_pos: torch.Tensor, X_neg: torch.Tensor, th: float) -> torch.Tens
     logits_pos = X_pos.pow(2).mean(dim=1)
     logits_neg = X_neg.pow(2).mean(dim=1)
 
-    loss_pos = - logits_pos + th
+    loss_pos = -logits_pos + th
     loss_neg = logits_neg - th
 
     loss_poss = torch.log(1 + torch.exp(loss_pos)).mean()
@@ -42,7 +42,9 @@ def base_loss(X_pos: torch.Tensor, X_neg: torch.Tensor, th: float) -> torch.Tens
     return loss
 
 
-def generate_positive_negative_samples_overlay(X: torch.Tensor, Y: torch.Tensor, only_positive: bool) -> Tuple[torch.Tensor]:
+def generate_positive_negative_samples_overlay(
+    X: torch.Tensor, Y: torch.Tensor, only_positive: bool
+) -> Tuple[torch.Tensor]:
     """Generate positive and negative samples using labels. It overlays labels in input. For neg it does
     the same but with shuffled labels.
 

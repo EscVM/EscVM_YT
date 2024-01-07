@@ -3,3 +3,6 @@ torchvision
 numpy
 matplotlib
 tqdm
+transformers
+datasets
+tensorboard

@@ -32,7 +32,7 @@ def plotImages(images_batch, img_n, classes):
         r = 1
         c = img_n
     else:
-        r = math.ceil(img_n/max_c)
+        r = math.ceil(img_n / max_c)
         c = max_c
 
     fig, axes = plt.subplots(r, c, figsize=(15, 15))
@@ -40,14 +40,14 @@ def plotImages(images_batch, img_n, classes):
     for img_batch, label_batch, ax in zip(images_batch[0], images_batch[1], axes):
         ax.imshow(img_batch)
         ax.grid()
-        ax.set_title('Class: {}'.format(classes[label_batch]))
+        ax.set_title("Class: {}".format(classes[label_batch]))
     plt.tight_layout()
     plt.show()
 
 
 def plotHistory(history, set_y_min=0, set_y_max=1.5):
     """
-    Plot the loss and accuracy curves for training and validation 
+    Plot the loss and accuracy curves for training and validation
     """
     pd.DataFrame(history.history).plot(figsize=(8, 5))
     plt.grid(True)
@@ -63,7 +63,7 @@ def plotPatches(x, n_images, patch_size):
         plt.imshow(image.astype("uint8"))
         plt.axis("off")
 
-        patches = Patches(patch_size)(image[None].astype('float32'))
+        patches = Patches(patch_size)(image[None].astype("float32"))
 
         n = int(np.sqrt(patches.shape[1]))
         plt.figure(figsize=(4, 4))
@@ -74,7 +74,9 @@ def plotPatches(x, n_images, patch_size):
             plt.axis("off")
 
 
-def explainGradCam(explainer, ax, img, y, model_1, y_pred_1, model_2, y_pred_2, class_names):
+def explainGradCam(
+    explainer, ax, img, y, model_1, y_pred_1, model_2, y_pred_2, class_names
+):
     """
     [Attention Episode]
     Plot GRADCAM of two trained models. It needs an axes with two columns
@@ -84,20 +86,22 @@ def explainGradCam(explainer, ax, img, y, model_1, y_pred_1, model_2, y_pred_2, 
     y_predm_1 = np.argmax(y_pred_1)
     y_predm_2 = np.argmax(y_pred_2)
 
-    grid_1 = explainer.explain(
-        data, model_1, class_index=y_predm_1, image_weight=0.8)
-    grid_2 = explainer.explain(
-        data, model_2, class_index=y_predm_2, image_weight=0.8)
+    grid_1 = explainer.explain(data, model_1, class_index=y_predm_1, image_weight=0.8)
+    grid_2 = explainer.explain(data, model_2, class_index=y_predm_2, image_weight=0.8)
 
-    ax[0].set_xlabel("Pred: {} {:2.0f}% ({})".format(class_names[y_predm_1],
-                                                     100*np.max(y_pred_1),
-                                                     class_names[y]),
-                     color=('blue' if y == y_predm_1 else 'red'))
+    ax[0].set_xlabel(
+        "Pred: {} {:2.0f}% ({})".format(
+            class_names[y_predm_1], 100 * np.max(y_pred_1), class_names[y]
+        ),
+        color=("blue" if y == y_predm_1 else "red"),
+    )
 
-    ax[1].set_xlabel("Pred: {} {:2.0f}% ({})".format(class_names[y_predm_2],
-                                                     100*np.max(y_pred_2),
-                                                     class_names[y]),
-                     color=('blue' if y == y_predm_2 else 'red'))
+    ax[1].set_xlabel(
+        "Pred: {} {:2.0f}% ({})".format(
+            class_names[y_predm_2], 100 * np.max(y_pred_2), class_names[y]
+        ),
+        color=("blue" if y == y_predm_2 else "red"),
+    )
     ax[0].imshow(grid_1)
     ax[1].imshow(grid_2)
 
@@ -108,7 +112,7 @@ def plot_misclassified_images(X_test, y_pred, y_test, labels):
 
     max_c = 5
 
-    r = np.ceil(errors_indices.size/max_c).astype(np.int32)
+    r = np.ceil(errors_indices.size / max_c).astype(np.int32)
     c = max_c
 
     fig, axes = plt.subplots(r, c, figsize=(55, 55))
@@ -119,7 +123,11 @@ def plot_misclassified_images(X_test, y_pred, y_test, labels):
         class_pred = logistic.cdf(y_pred[int(e_index)])[0]
         if class_pred < 0.5:
             class_pred = 1 - class_pred
-        ax.set_title('Class {}: {:.2%}'.format(labels[int(y_pred_arg[int(e_index)])],
-                                               class_pred), color='red')
+        ax.set_title(
+            "Class {}: {:.2%}".format(
+                labels[int(y_pred_arg[int(e_index)])], class_pred
+            ),
+            color="red",
+        )
     plt.tight_layout()
     plt.show()

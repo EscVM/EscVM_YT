@@ -21,34 +21,31 @@ class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     def __init__(self, d_model, warmup_steps=20000.0):
         super(CustomSchedule, self).__init__()
 
-        self.d_model = tf.cast(d_model, dtype='float32')
+        self.d_model = tf.cast(d_model, dtype="float32")
         self.warmup_steps = warmup_steps
 
     def get_config(self):
-        config = {
-            'd_model': self.d_model,
-            'warmup_steps': self.warmup_steps
-        }
+        config = {"d_model": self.d_model, "warmup_steps": self.warmup_steps}
 
         return config
 
     def __call__(self, step):
-        step = tf.cast(step, dtype='float32')
+        step = tf.cast(step, dtype="float32")
         arg1 = tf.math.rsqrt(step)
-        arg2 = step * (self.warmup_steps ** -1.5)
+        arg2 = step * (self.warmup_steps**-1.5)
 
         return tf.math.rsqrt(self.d_model) * tf.math.minimum(arg1, arg2)
 
 
 def get_angles(pos, i, d_model):
-    angle_rates = 1 / np.power(10000, (2 * (i//2)) / np.float32(d_model))
+    angle_rates = 1 / np.power(10000, (2 * (i // 2)) / np.float32(d_model))
     return pos * angle_rates
 
 
 def positional_encoding(position, d_model):
-    angle_rads = get_angles(np.arange(position)[:, np.newaxis],
-                            np.arange(d_model)[np.newaxis, :],
-                            d_model)
+    angle_rads = get_angles(
+        np.arange(position)[:, np.newaxis], np.arange(d_model)[np.newaxis, :], d_model
+    )
 
     # apply sin to even indices in the array; 2i
     angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])

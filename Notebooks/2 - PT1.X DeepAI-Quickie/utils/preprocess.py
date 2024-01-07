@@ -24,8 +24,10 @@ def visualize_predict(model, img, img_size, patch_size, device):
 
 def visualize_attention(model, img, patch_size, device):
     # make the image divisible by the patch size
-    w, h = img.shape[1] - img.shape[1] % patch_size, img.shape[2] - \
-        img.shape[2] % patch_size
+    w, h = (
+        img.shape[1] - img.shape[1] % patch_size,
+        img.shape[2] - img.shape[2] % patch_size,
+    )
     img = img[:, :w, :h].unsqueeze(0)
 
     w_featmap = img.shape[-2] // patch_size
@@ -39,8 +41,13 @@ def visualize_attention(model, img, patch_size, device):
     attentions = attentions[0, :, 0, 1:].reshape(nh, -1)
 
     attentions = attentions.reshape(nh, w_featmap, h_featmap)
-    attentions = nn.functional.interpolate(attentions.unsqueeze(
-        0), scale_factor=patch_size, mode="nearest")[0].cpu().numpy()
+    attentions = (
+        nn.functional.interpolate(
+            attentions.unsqueeze(0), scale_factor=patch_size, mode="nearest"
+        )[0]
+        .cpu()
+        .numpy()
+    )
 
     return attentions
 
@@ -51,25 +58,26 @@ def plot_attention(img, attention):
     plt.figure(figsize=(10, 10))
     text = ["Original Image", "Head Mean"]
     for i, fig in enumerate([img, np.mean(attention, 0)]):
-        plt.subplot(1, 2, i+1)
-        plt.imshow(fig, cmap='inferno')
+        plt.subplot(1, 2, i + 1)
+        plt.imshow(fig, cmap="inferno")
         plt.title(text[i])
     plt.show()
 
     plt.figure(figsize=(10, 10))
     for i in range(n_heads):
-        plt.subplot(n_heads//3, 3, i+1)
-        plt.imshow(attention[i], cmap='inferno')
+        plt.subplot(n_heads // 3, 3, i + 1)
+        plt.imshow(attention[i], cmap="inferno")
         plt.title(f"Head n: {i+1}")
     plt.tight_layout()
     plt.show()
 
- # ----------------------------------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------
 
 
 class Loader(object):
     def __init__(self):
-        self.uploader = widgets.FileUpload(accept='image/*', multiple=False)
+        self.uploader = widgets.FileUpload(accept="image/*", multiple=False)
         self._start()
 
     def _start(self):
@@ -79,15 +87,16 @@ class Loader(object):
         try:
             for uploaded_filename in self.uploader.value:
                 uploaded_filename = uploaded_filename
-            img = Image.open(io.BytesIO(
-                bytes(self.uploader.value[uploaded_filename]['content'])))
+            img = Image.open(
+                io.BytesIO(bytes(self.uploader.value[uploaded_filename]["content"]))
+            )
 
             return img
         except:
             return None
 
     def saveImage(self, path):
-        with open(path, 'wb') as output_file:
+        with open(path, "wb") as output_file:
             for uploaded_filename in self.uploader.value:
-                content = self.uploader.value[uploaded_filename]['content']
+                content = self.uploader.value[uploaded_filename]["content"]
                 output_file.write(content)

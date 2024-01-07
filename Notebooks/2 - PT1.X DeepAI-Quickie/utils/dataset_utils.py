@@ -21,8 +21,7 @@ from torch.utils.data import DataLoader
 
 
 class DatasetLoader(ABC):
-    """Generic PyTorch Dataset Loader
-    """
+    """Generic PyTorch Dataset Loader"""
 
     def __init__(self):
         self.train_set = None
@@ -34,20 +33,20 @@ class DatasetLoader(ABC):
         self.download_path = None
 
     @staticmethod
-    def get_loader(dataset: torchvision.datasets, batch_size: int, shuffle: bool = True) -> DataLoader:
+    def get_loader(
+        dataset: torchvision.datasets, batch_size: int, shuffle: bool = True
+    ) -> DataLoader:
         """Provides a DataLoader of the given dataset
 
         Args:
             dataset (torchvision.datasets): input dataset
-            batch_size (int): DataLoader batch size 
+            batch_size (int): DataLoader batch size
             shuffle (bool, optional): DataLoader shuffle option. Defaults to True.
 
         Returns:
             DataLoader: output DataLoader
         """
-        train_loader = DataLoader(dataset,
-                                  batch_size=batch_size,
-                                  shuffle=shuffle)
+        train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
         return train_loader
 
@@ -63,10 +62,14 @@ class DatasetLoader(ABC):
 
 
 class MNISTLoader(DatasetLoader):
-    """MNIST PyTorch Dataset Loader
-    """
+    """MNIST PyTorch Dataset Loader"""
 
-    def __init__(self, train_transform: torchvision.transforms, test_transform: torchvision.transforms, download_path: str = './tmp'):
+    def __init__(
+        self,
+        train_transform: torchvision.transforms,
+        test_transform: torchvision.transforms,
+        download_path: str = "./tmp",
+    ):
         """Initialize MNIST Dataset Loader
 
         Args:
@@ -82,20 +85,25 @@ class MNISTLoader(DatasetLoader):
         self.download_path = download_path
 
     def download_dataset(self) -> None:
-        """Download dataset to the given path
-        """
-        self.train_set = MNIST(self.download_path, train=True,
-                               download=True,
-                               transform=self.train_transform)
+        """Download dataset to the given path"""
+        self.train_set = MNIST(
+            self.download_path,
+            train=True,
+            download=True,
+            transform=self.train_transform,
+        )
 
-        self.test_set = MNIST(self.download_path, train=False,
-                              download=True,
-                              transform=self.test_transform)
+        self.test_set = MNIST(
+            self.download_path,
+            train=False,
+            download=True,
+            transform=self.test_transform,
+        )
 
 
 class TrainingDatasetFF(torch.utils.data.Dataset):
     """Utility class to store positive and negative examples to train
-       with FF algorithm.
+    with FF algorithm.
     """
 
     def __init__(self, dataset_generator: DataLoader) -> None:

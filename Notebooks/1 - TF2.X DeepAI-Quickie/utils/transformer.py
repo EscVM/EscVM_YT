@@ -21,14 +21,14 @@ def scaled_dot_product_attention(q, k, v, mask):
     """Calculate the attention weights.
     q, k, v must have matching leading dimensions.
     k, v must have matching penultimate dimension, i.e.: seq_len_k = seq_len_v.
-    The mask has different shapes depending on its type(padding or look ahead) 
+    The mask has different shapes depending on its type(padding or look ahead)
     but it must be broadcastable for addition.
 
     Args:
     q: query shape == (..., seq_len_q, depth)
     k: key shape == (..., seq_len_k, depth)
     v: value shape == (..., seq_len_v, depth_v)
-    mask: Float tensor with shape broadcastable 
+    mask: Float tensor with shape broadcastable
           to (..., seq_len_q, seq_len_k). Defaults to None.
 
     Returns:
@@ -44,12 +44,13 @@ def scaled_dot_product_attention(q, k, v, mask):
 
     # add the mask to the scaled tensor.
     if mask is not None:
-        scaled_attention_logits += (mask * -1e9)
+        scaled_attention_logits += mask * -1e9
 
     # softmax is normalized on the last axis (seq_len_k) so that the scores
     # add up to 1.
     attention_weights = tf.nn.softmax(
-        scaled_attention_logits, axis=-1)  # (..., seq_len_q, seq_len_k)
+        scaled_attention_logits, axis=-1
+    )  # (..., seq_len_q, seq_len_k)
 
     output = tf.matmul(attention_weights, v)  # (..., seq_len_q, depth_v)
 
@@ -57,11 +58,13 @@ def scaled_dot_product_attention(q, k, v, mask):
 
 
 def point_wise_feed_forward_network(d_model, d_ff, activation):
-    return tf.keras.Sequential([
-        # (batch_size, seq_len, dff)
-        tf.keras.layers.Dense(d_ff, activation=activation),
-        tf.keras.layers.Dense(d_model)  # (batch_size, seq_len, d_model)
-    ])
+    return tf.keras.Sequential(
+        [
+            # (batch_size, seq_len, dff)
+            tf.keras.layers.Dense(d_ff, activation=activation),
+            tf.keras.layers.Dense(d_model),  # (batch_size, seq_len, d_model)
+        ]
+    )
 
 
 class MultiHeadAttention(tf.keras.layers.Layer):
@@ -101,13 +104,15 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # scaled_attention.shape == (batch_size, num_heads, seq_len_q, depth)
         # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
         scaled_attention, attention_weights = scaled_dot_product_attention(
-            q, k, v, mask)
+            q, k, v, mask
+        )
 
         # (batch_size, seq_len_q, num_heads, depth)
         scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])
 
-        concat_attention = tf.reshape(scaled_attention,
-                                      (batch_size, -1, self.d_model))  # (batch_size, seq_len_q, d_model)
+        concat_attention = tf.reshape(
+            scaled_attention, (batch_size, -1, self.d_model)
+        )  # (batch_size, seq_len_q, d_model)
 
         # (batch_size, seq_len_q, d_model)
         output = self.dense(concat_attention)
@@ -124,14 +129,17 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         self.dropout = dropout
         self.activation = activation
 
-        assert self.d_model % self.num_heads == 0, "d_model must be divisible by num_heads"
+        assert (
+            self.d_model % self.num_heads == 0
+        ), "d_model must be divisible by num_heads"
 
         self.depth = d_model // self.num_heads
 
         self.mha = MultiHeadAttention(self.d_model, self.num_heads, self.depth)
 
         self.ffn = point_wise_feed_forward_network(
-            self.d_model, self.d_ff, self.activation)
+            self.d_model, self.d_ff, self.activation
+        )
 
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
@@ -156,16 +164,18 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
 
 
 class TransformerEncoder(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, d_ff, dropout, activation, n_layers, **kwargs):
+    def __init__(
+        self, d_model, num_heads, d_ff, dropout, activation, n_layers, **kwargs
+    ):
         super(TransformerEncoder, self).__init__(**kwargs)
         self.n_layers = n_layers
-        self.encoder_layers = [TransformerEncoderLayer(d_model, num_heads,
-                                                       d_ff, dropout, activation) for i in range(n_layers)]
+        self.encoder_layers = [
+            TransformerEncoderLayer(d_model, num_heads, d_ff, dropout, activation)
+            for i in range(n_layers)
+        ]
 
     def get_config(self):
-        config = {
-            'n_layers': self.n_layers
-        }
+        config = {"n_layers": self.n_layers}
 
         base_config = super(TransformerEncoder, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
@@ -183,9 +193,7 @@ class Patches(tf.keras.layers.Layer):
         self.patch_size = patch_size
 
     def get_config(self):
-        config = {
-            'patch_size': self.patch_size
-        }
+        config = {"patch_size": self.patch_size}
 
         base_config = super(Patches, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
@@ -205,23 +213,26 @@ class Patches(tf.keras.layers.Layer):
 
 
 class PatchClassEmbedding(tf.keras.layers.Layer):
-    def __init__(self, d_model, n_patches, kernel_initializer='he_normal', **kwargs):
+    def __init__(self, d_model, n_patches, kernel_initializer="he_normal", **kwargs):
         super(PatchClassEmbedding, self).__init__(**kwargs)
         self.d_model = d_model
         self.n_tot_patches = n_patches + 1
         self.kernel_initializer = kernel_initializer
         self.kernel_initializer = tf.keras.initializers.get(kernel_initializer)
-        self.class_embed = self.add_weight(shape=(
-            1, 1, self.d_model), initializer=self.kernel_initializer, name="class_token")  # extra learnable class
+        self.class_embed = self.add_weight(
+            shape=(1, 1, self.d_model),
+            initializer=self.kernel_initializer,
+            name="class_token",
+        )  # extra learnable class
         self.position_embedding = tf.keras.layers.Embedding(
             input_dim=(self.n_tot_patches), output_dim=self.d_model
         )
 
     def get_config(self):
         config = {
-            'd_model': self.d_model,
-            'n_tot_patches': self.n_tot_patches,
-            'kernel_initializer': self.kernel_initializer
+            "d_model": self.d_model,
+            "n_tot_patches": self.n_tot_patches,
+            "kernel_initializer": self.kernel_initializer,
         }
 
         base_config = super(PatchClassEmbedding, self).get_config()

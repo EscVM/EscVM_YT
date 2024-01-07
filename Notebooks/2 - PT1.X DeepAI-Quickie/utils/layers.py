@@ -19,12 +19,19 @@ from torch.nn import Linear
 
 
 class FFLinear(Linear):
-    """Fully connected layer Forward-Forward compatible
-    """
+    """Fully connected layer Forward-Forward compatible"""
 
-    def __init__(self, in_features: int, out_features: int, activation: torch.nn,
-                 optimizer: torch.optim, layer_optim_learning_rate: float, threshold: float, loss_fn: Callable,
-                 bias: bool = True):
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        activation: torch.nn,
+        optimizer: torch.optim,
+        layer_optim_learning_rate: float,
+        threshold: float,
+        loss_fn: Callable,
+        bias: bool = True,
+    ):
         """Initialize layer
 
         Args:
@@ -54,11 +61,11 @@ class FFLinear(Linear):
             torch.Tensor: output tensor
         """
         x = x / (x.norm(2, 1, keepdim=True) + 1e-8)  # mormalize input
-        return self.activation(
-            torch.mm(x, self.weight.T) +
-            self.bias.unsqueeze(0))
+        return self.activation(torch.mm(x, self.weight.T) + self.bias.unsqueeze(0))
 
-    def train_layer(self, X_pos: torch.Tensor, X_neg: torch.Tensor, before: bool) -> Tuple[torch.Tensor, torch.Tensor, int]:
+    def train_layer(
+        self, X_pos: torch.Tensor, X_neg: torch.Tensor, before: bool
+    ) -> Tuple[torch.Tensor, torch.Tensor, int]:
         """Train layer with FF algorithm
 
         Args:
@@ -82,4 +89,8 @@ class FFLinear(Linear):
         if before:
             return X_pos_out.detach(), X_neg_out.detach(), loss.item()
         else:
-            return self.forward(X_pos).detach(), self.forward(X_neg).detach(), loss.item()
+            return (
+                self.forward(X_pos).detach(),
+                self.forward(X_neg).detach(),
+                loss.item(),
+            )

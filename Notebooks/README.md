@@ -39,3 +39,4 @@ Then, requirements  depend on from which set of notebooks you would like to play
 **2 - PT1.X DeepAI-Quickie**
 - Visualize Vision Transformer attention: [link](https://github.com/EscVM/EscVM_YT/blob/master/Notebooks/2%20-%20PT1.X%20DeepAI-Quickie/pt_1_vit_attention.ipynb)
 - The Forword-Forward Algorithm: [link](https://github.com/EscVM/EscVM_YT/blob/master/Notebooks/2%20-%20PT1.X%20DeepAI-Quickie/pt_1_forward_forward_alg.ipynb)
+- Instruction Tuning From Scratch with a Single GPU: [link](https://github.com/EscVM/EscVM_YT/blob/master/Notebooks/2%20-%20PT1.X%20DeepAI-Quickie/pt_1_instruction_tuning.ipynb)

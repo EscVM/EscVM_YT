@@ -6,3 +6,4 @@ tqdm
 transformers
 datasets
 tensorboard
+ipywidgets
